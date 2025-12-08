@@ -1,0 +1,313 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Georgia', serif;
+  color: #222;
+  background: #fff;
+  overflow-x: hidden;
+  padding-top: 90px;
+}
+
+/* ========== NAVBAR (Copiado de style.css) ========== */
+#navbar {
+  background-color: #000054; /* Azul escuro principal */
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: top 0.4s ease;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.logo span {
+  font-size: 16px;
+  vertical-align: super;
+}
+
+.logo .highlight {
+  color: #c49c5d; /* Dourado/Bronze para destaque */
+  font-size: 28px;
+  font-weight: 700;
+  vertical-align: baseline;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 35px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: #c49c5d; /* Cor de hover/ativo */
+}
+
+.right-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 30px;
+  border-radius: 50%;
+  filter: invert(1);
+}
+/* ========== FIM NAVBAR ========== */
+
+
+/* SEÇÃO TERMINAL (SIMULAÇÃO ARDUINO IDE) */
+.code-terminal-section {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 40px;
+  text-align: center;
+}
+
+.code-terminal-section h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2em;
+  color: #000054;
+  margin-bottom: 30px;
+}
+
+.terminal-window {
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  background-color: #282c34; /* Fundo escuro */
+  text-align: left;
+}
+
+.terminal-header {
+  background-color: #3e4451;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1e2127;
+}
+
+.terminal-title {
+  color: #fff;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.terminal-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.control-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: block;
+}
+
+.control-btn.close {
+  background-color: #ff5f56; /* Vermelho */
+}
+.control-btn.minimize {
+  background-color: #ffbd2e; /* Amarelo */
+}
+.control-btn.maximize {
+  background-color: #27c93f; /* Verde */
+}
+
+
+/* ÁREA DO CÓDIGO */
+.code-area {
+  font-family: 'Roboto Mono', monospace; /* Fonte de código */
+  font-size: 0.95em;
+  line-height: 1.5;
+  color: #abb2bf; /* Cor padrão do texto (cinza claro) */
+  padding: 20px;
+  white-space: pre-wrap; /* Permite quebras de linha longas */
+  overflow-x: auto;
+}
+
+/* Sintaxe Highlighting */
+.code-area .comment {
+  color: #5c6370; /* Verde acinzentado */
+  font-style: italic;
+}
+
+.code-area .define {
+  color: #c678dd; /* Roxo para #define */
+}
+
+.code-area .keyword {
+  color: #c678dd; /* Roxo para #include */
+}
+
+.code-area .function {
+  color: #61afef; /* Azul claro para funções */
+}
+
+.code-area .string {
+  color: #98c379; /* Verde para strings (dentro de aspas) */
+}
+
+.code-area .number {
+  color: #d19a66; /* Laranja para números */
+}
+
+.code-area .constant {
+  color: #e6c07b; /* Amarelo para constantes como A0, HIGH, LOW */
+}
+
+
+/* FOOTER (Copiado de sobre.css) */
+.footer {
+  background-color: #000054;
+  color: #f5f5f5;
+  padding: 60px 8%;
+  font-family: "Open Sans", sans-serif;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 40px;
+}
+
+.footer h3 {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.footer p {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  color: #ddd;
+}
+
+.footer a {
+  display: block;
+  color: #f5f5f5;
+  text-decoration: none;
+  margin-bottom: 6px;
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: #c49c5d;
+}
+
+.footer form {
+  margin-top: 10px;
+}
+
+.footer input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border: none;
+  border-radius: 4px;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.footer .subscribe {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer button {
+  background: #c49c5d;
+  border: none;
+  color: #000054;
+  padding: 8px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.footer button:hover {
+  background: #d3ad6b;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+/* FIM FOOTER */
+
+/* RESPONSIVO */
+@media (max-width: 900px) {
+  /* Navbar adjustments */
+  .container {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px 20px;
+  }
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  /* Terminal adjustments */
+  .code-terminal-section {
+    padding: 0 20px;
+  }
+  .code-terminal-section h1 {
+    font-size: 1.6em;
+  }
+  .code-area {
+    font-size: 0.85em;
+  }
+
+  /* Footer adjustments */
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+    .code-area {
+        font-size: 0.75em;
+    }
+}

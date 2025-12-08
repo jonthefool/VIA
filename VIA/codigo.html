@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Código Fonte | VIA</title>
+  <link rel="icon" type="image/png" href="./ico/logo.ico">
+  <link rel="stylesheet" href="./css/codigo.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Open+Sans:wght@400;500;600&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+   <header id="navbar">
+    <div class="container">
+      <div class="logo">
+        V<span class="highlight">I</span>A
+      </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="./index.html">Home</a></li>
+          <li><a href="./sobre.html">Sobre o Projeto</a></li>
+          <li><a href="./contato.html">Contato</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="code-terminal-section">
+    <h1>CÓDIGO-FONTE (Arduino IDE)</h1>
+    <div class="terminal-window">
+      <div class="terminal-header">
+        <span class="terminal-title">VaralInteligente.ino</span>
+        <div class="terminal-controls">
+          <span class="control-btn close"></span>
+          <span class="control-btn minimize"></span>
+          <span class="control-btn maximize"></span>
+        </div>
+      </div>
+      <pre id="arduino-code" class="code-area">
+// ===================================================================
+//  BIBLIOTECAS
+// ===================================================================
+
+// Biblioteca para controlar servo motores (SG90, MG995, etc)
+#include <span class="keyword">&lt;Servo.h&gt;</span>
+
+// Biblioteca para ler temperatura e umidade (DHT11 / DHT22)
+#include <span class="keyword">&lt;DHT.h&gt;</span>
+
+// Biblioteca para ler teclado matricial 4x4
+#include <span class="keyword">&lt;Keypad.h&gt;</span>
+
+
+// ===================================================================
+//  SENSOR DHT11
+// ===================================================================
+
+// Pino onde o sensor DHT11 está conectado
+<span class="define">#define DHTPIN 2</span>
+
+// Tipo do sensor (DHT11)
+<span class="define">#define DHTTYPE DHT11</span>
+
+// Cria o objeto que fará a leitura do sensor
+DHT dht(DHTPIN, DHTTYPE);
+
+
+// ===================================================================
+//  SERVOS
+// ===================================================================
+
+// Criação dos 2 servos utilizados para abrir e fechar o varal
+Servo servoLeft;
+Servo servoRight;
+
+// Pinos digitais onde os servos estão conectados
+const uint8_t PIN_SERVO_L = <span class="number">5</span>;
+const uint8_t PIN_SERVO_R = <span class="number">6</span>;
+
+// Ângulos pré-definidos para abrir e fechar o varal
+int ANG_EXPAND = <span class="number">150</span>;   <span class="comment">// Ângulo para expandir (abrir)</span>
+int ANG_RETRACT = <span class="number">0</span>;    <span class="comment">// Ângulo para retrair (fechar)</span>
+
+// Variável que armazena o ângulo atual dos servos
+int currentAngle = <span class="number">0</span>;   <span class="comment">// Começa em 0° (fechado)</span>
+
+
+// ===================================================================
+//  ULTRASSÔNICOS
+// ===================================================================
+// Ultrassônico da frente
+const uint8_t TRIG_F = <span class="number">8</span>;
+const uint8_t ECHO_F = <span class="number">9</span>;
+
+// Ultrassônico de trás
+const uint8_t TRIG_B = <span class="number">10</span>;
+const uint8_t ECHO_B = <span class="number">11</span>;
+
+
+// ===================================================================
+//  TECLADO MATRICIAL 4x4
+// ===================================================================
+
+// Define o número de linhas e colunas
+const byte ROWS = <span class="number">4</span>;
+const byte COLS = <span class="number">4</span>;
+
+// Mapa das teclas reais do teclado
+char keys[ROWS][COLS] = {
+  <span class="string">{'1','2','3','A'}</span>,
+  <span class="string">{'4','5','6','B'}</span>,
+  <span class="string">{'7','8','9','C'}</span>,
+  <span class="string">{'*','0','#','D'}</span>
+};
+
+// Pinos das linhas
+byte rowPins[ROWS] = {<span class="constant">A0</span>, <span class="constant">A1</span>, <span class="constant">A2</span>, <span class="constant">A3</span>};
+
+// Pinos das colunas
+byte colPins[COLS] = {<span class="constant">A4</span>, <span class="constant">A5</span>, <span class="number">3</span>, <span class="number">4</span>};
+
+// Criação do teclado
+Keypad keypad = Keypad(<span class="function">makeKeymap</span>(keys), rowPins, colPins, ROWS, COLS);
+
+
+// ===================================================================
+//  PARÂMETROS GERAIS DO SISTEMA
+// ===================================================================
+
+// Delay entre passos dos servos (controla suavidade do movimento)
+int SERVO_STEP_DELAY = <span class="number">12</span>;
+
+// Umidade limite para ativar autorretração (>90% recolhe)
+const float LIMIAR_UMIDADE = <span class="number">90.0</span>;
+
+// Distância mínima para detectar obstáculo (10 cm)
+const int DIST_MIN_CM = <span class="number">10</span>;
+
+// Controles de tempo
+unsigned long lastDHTRead = <span class="number">0</span>;
+unsigned long lastPrint = <span class="number">0</span>;
+
+// Intervalos de leitura e impressão
+const unsigned long DHT_INTERVAL = <span class="number">2000</span>;
+const unsigned long PRINT_INTERVAL = <span class="number">800</span>;
+
+// Bloqueio que impede retração automática logo após expandir
+unsigned long blockRetractUntil = <span class="number">0</span>;
+
+
+// ===================================================================
+//  ESTADOS DO SISTEMA (MÁQUINA DE ESTADOS)
+// ===================================================================
+// Define todas as situações possíveis do varal
+enum State {
+  ST_IDLE,         <span class="comment">// Parado</span>
+  ST_EXPAND,       <span class="comment">// Expandindo</span>
+  ST_RETRACT,      <span class="comment">// Retraindo</span>
+  ST_AUTO_RETRACT, <span class="comment">// Retraindo automaticamente pela umidade</span>
+  ST_EMERGENCY     <span class="comment">// Emergência</span>
+};
+
+// Estado inicial do sistema
+State state = ST_IDLE;
+
+
+// ===================================================================
+//  ULTRASSOM (FUNÇÃO FILTRADA PARA LEITURA ESTÁVEL)
+// ===================================================================
+
+// Leitura individual do sensor ultrassônico
+long <span class="function">readUltrasonicRaw</span>(uint8_t trigPin, uint8_t echoPin) {
+  <span class="function">digitalWrite</span>(trigPin, LOW);
+  <span class="function">delayMicroseconds</span>(<span class="number">4</span>);
+  <span class="function">digitalWrite</span>(trigPin, HIGH);
+  <span class="function">delayMicroseconds</span>(<span class="number">12</span>);
+  <span class="function">digitalWrite</span>(trigPin, LOW);
+
+  <span class="comment">// Mede o tempo do pulso de retorno</span>
+  long dur = <span class="function">pulseIn</span>(echoPin, HIGH, <span class="number">35000UL</span>);
+
+  <span class="comment">// Se não recebeu retorno, erro</span>
+  if (dur == <span class="number">0</span>) <span class="function">return</span> <span class="number">999</span>;
+
+  <span class="comment">// Converte tempo para centímetros</span>
+  long dist = dur / <span class="number">58</span>;
+
+  <span class="comment">// Valida faixa do sensor</span>
+  if (dist < <span class="number">2</span> || dist > <span class="number">400</span>) <span class="function">return</span> <span class="number">999</span>;
+
+  <span class="function">return</span> dist;
+}
+
+// Faz uma média de 5 leituras para reduzir ruídos
+long <span class="function">readUltrasonicFiltered</span>(uint8_t trigPin, uint8_t echoPin) {
+  long soma = <span class="number">0</span>;
+  int validas = <span class="number">0</span>;
+
+  <span class="comment">// Faz 5 leituras</span>
+  for (int i = <span class="number">0</span>; i < <span class="number">5</span>; i++) {
+    long d = <span class="function">readUltrasonicRaw</span>(trigPin, echoPin);
+
+    if (d != <span class="number">999</span>) {
+      soma += d;
+      validas++;
+    }
+    <span class="function">delay</span>(<span class="number">20</span>);
+  }
+
+  <span class="comment">// Se nenhuma leitura foi válida, retorna erro</span>
+  if (validas == <span class="number">0</span>) <span class="function">return</span> <span class="number">999</span>;
+
+  <span class="comment">// Caso contrário, retorna média</span>
+  <span class="function">return</span> soma / validas;
+}
+
+
+// ===================================================================
+//  MOVIMENTO DOS SERVOS DE FORMA SINCRONIZADA
+// ===================================================================
+
+// Move os dois servos ao mesmo tempo e na mesma velocidade
+void <span class="function">moveServosTo</span>(int target) {
+
+  <span class="comment">// Determina direção do movimento (somar ou subtrair)</span>
+  int direction = (currentAngle < target) ? <span class="number">1</span> : <span class="number">-1</span>;
+
+  <span class="comment">// Enquanto não atingir o alvo, incrementa o ângulo</span>
+  while (currentAngle != target) {
+    currentAngle += direction;
+
+    servoLeft.<span class="function">write</span>(currentAngle);
+    servoRight.<span class="function">write</span>(currentAngle);
+
+    <span class="function">delay</span>(SERVO_STEP_DELAY);
+  }
+}
+
+
+// ===================================================================
+//  SETUP
+// ===================================================================
+void <span class="function">setup</span>() {
+  <span class="function">Serial.begin</span>(<span class="number">9600</span>);
+  dht.<span class="function">begin</span>();
+
+  <span class="comment">// Configura pinos dos sensores ultrassônicos</span>
+  <span class="function">pinMode</span>(TRIG_F, OUTPUT);
+  <span class="function">pinMode</span>(ECHO_F, INPUT);
+  <span class="function">pinMode</span>(TRIG_B, OUTPUT);
+  <span class="function">pinMode</span>(ECHO_B, INPUT);
+
+  <span class="comment">// Liga os servos ao Arduino</span>
+  servoLeft.<span class="function">attach</span>(PIN_SERVO_L);
+  servoRight.<span class="function">attach</span>(PIN_SERVO_R);
+
+  <span class="comment">// Ambos começam na posição retraída (0 graus)</span>
+  servoLeft.<span class="function">write</span>(currentAngle);
+  servoRight.<span class="function">write</span>(currentAngle);
+
+  <span class="function">Serial.println</span>(<span class="string">"Sistema iniciado com servos sincronizados e bloqueio anti-retorno."</span>);
+}
+
+
+// ===================================================================
+//  LOOP PRINCIPAL
+// ===================================================================
+void <span class="function">loop</span>() {
+
+  <span class="comment">// -----------------------------------------------------</span>
+  <span class="comment">// LEITURA DO SENSOR DHT (UMIDADE)</span>
+  <span class="comment">// -----------------------------------------------------</span>
+  if (<span class="function">millis</span>() - lastDHTRead > DHT_INTERVAL) {
+
+    lastDHTRead = <span class="function">millis</span>();
+    float hum = dht.<span class="function">readHumidity</span>();
+
+    if (!<span class="function">isnan</span>(hum)) {
+      <span class="function">Serial.print</span>(<span class="string">"Umidade: "</span>);
+      <span class="function">Serial.println</span>(hum);
+
+      <span class="comment">// Se a umidade for maior que 90% e o bloqueio tiver acabado</span>
+      if (hum >= LIMIAR_UMIDADE && <span class="function">millis</span>() > blockRetractUntil)
+        state = ST_AUTO_RETRACT;
+    }
+  }
+
+
+  <span class="comment">// -----------------------------------------------------</span>
+  <span class="comment">// LEITURA DO TECLADO</span>
+  <span class="comment">// -----------------------------------------------------</span>
+  char k = keypad.<span class="function">getKey</span>();
+
+  if (k) {
+    <span class="function">Serial.print</span>(<span class="string">"Tecla: "</span>);
+    <span class="function">Serial.println</span>(k);
+
+    if (k == <span class="string">'A'</span>) state = ST_EXPAND;      <span class="comment">// abrir varal</span>
+    if (k == <span class="string">'B'</span>) state = ST_RETRACT;     <span class="comment">// fechar varal</span>
+    if (k == <span class="string">'C'</span>) state = ST_EMERGENCY;   <span class="comment">// emergência</span>
+    if (k == <span class="string">'D'</span> && state == ST_EMERGENCY) state = ST_IDLE; <span class="comment">// sair da emergência</span>
+  }
+
+
+  <span class="comment">// -----------------------------------------------------</span>
+  <span class="comment">// LEITURA DOS ULTRASSÔNICOS FILTRADOS</span>
+  <span class="comment">// -----------------------------------------------------</span>
+  long dF = <span class="function">readUltrasonicFiltered</span>(TRIG_F, ECHO_F);
+  long dB = <span class="function">readUltrasonicFiltered</span>(TRIG_B, ECHO_B);
+
+  <span class="comment">// Mostra distâncias no monitor serial em intervalos</span>
+  if (<span class="function">millis</span>() - lastPrint > PRINT_INTERVAL) {
+    lastPrint = <span class="function">millis</span>();
+
+    <span class="function">Serial.print</span>(<span class="string">"Frente: "</span>);
+    <span class="function">Serial.println</span>(dF);
+
+    <span class="function">Serial.print</span>(<span class="string">"Trás: "</span>);
+    <span class="function">Serial.println</span>(dB);
+
+    <span class="function">Serial.println</span>(<span class="string">"---------------------"</span>);
+  }
+
+  <span class="comment">// Verifica obstáculos</span>
+  bool obstaculoFrente = (dF <= DIST_MIN_CM && dF != <span class="number">999</span>);
+  bool obstaculoTras   = (dB <= DIST_MIN_CM && dB != <span class="number">999</span>);
+
+
+  <span class="comment">// ===================================================================</span>
+  <span class="comment">//  MÁQUINA DE ESTADOS</span>
+  <span class="comment">// ===================================================================</span>
+  <span class="function">switch</span> (state) {
+
+
+    <span class="comment">// -----------------------------------------------------</span>
+    case ST_IDLE:
+      <span class="comment">// Não faz nada, apenas espera um comando</span>
+      break;
+
+
+    <span class="comment">// -----------------------------------------------------</span>
+    <span class="comment">// EXPANDIR O VARAL</span>
+    <span class="comment">// -----------------------------------------------------</span>
+    case ST_EXPAND:
+
+      <span class="comment">// Segurança: não expande se há obstáculo na frente</span>
+      if (obstaculoFrente) {
+        <span class="function">Serial.println</span>(<span class="string">"⚠ EMERGÊNCIA: Obstáculo REAL à frente!"</span>);
+        state = ST_EMERGENCY;
+        break;
+      }
+
+      <span class="comment">// Abre o varal até 150 graus</span>
+      <span class="function">moveServosTo</span>(ANG_EXPAND);
+
+      <span class="comment">// Bloqueia retração pelos próximos 3 segundos</span>
+      blockRetractUntil = <span class="function">millis</span>() + <span class="number">3000</span>;
+
+      state = ST_IDLE;
+      break;
+
+
+    <span class="comment">// -----------------------------------------------------</span>
+    <span class="comment">// RETRAIR O VARAL (AÇÃO DO USUÁRIO)</span>
+    <span class="comment">// -----------------------------------------------------</span>
+    case ST_RETRACT:
+
+      <span class="comment">// Desativa retração manual se estiver dentro do período bloqueado</span>
+      if (<span class="function">millis</span>() < blockRetractUntil) break;
+
+      <span class="comment">// Segurança: não retrai se há obstáculo atrás</span>
+      if (obstaculoTras) {
+        <span class="function">Serial.println</span>(<span class="string">"⚠ EMERGÊNCIA: Obstáculo REAL atrás!"</span>);
+        state = ST_EMERGENCY;
+        break;
+      }
+
+      <span class="function">moveServosTo</span>(ANG_RETRACT);
+      state = ST_IDLE;
+      break;
+
+
+    <span class="comment">// -----------------------------------------------------</span>
+    <span class="comment">// AUTORRETRAÇÃO (UMIDADE ALTA)</span>
+    <span class="comment">// -----------------------------------------------------</span>
+    case ST_AUTO_RETRACT:
+
+      <span class="comment">// Se ainda estiver no tempo de bloqueio, espera</span>
+      if (<span class="function">millis</span>() < blockRetractUntil) break;
+
+      <span class="comment">// Segurança atrás</span>
+      if (obstaculoTras) {
+        <span class="function">Serial.println</span>(<span class="string">"⚠ EMERGÊNCIA: Obstáculo atrás!"</span>);
+        state = ST_EMERGENCY;
+        break;
+      }
+
+      <span class="function">moveServosTo</span>(ANG_RETRACT);
+      state = ST_IDLE;
+      break;
+
+
+    <span class="comment">// -----------------------------------------------------</span>
+    <span class="comment">// EMERGÊNCIA</span>
+    <span class="comment">// -----------------------------------------------------</span>
+    case ST_EMERGENCY:
+      <span class="function">Serial.println</span>(<span class="string">"⚠ EMERGÊNCIA | Aperte D para resetar"</span>);
+      break;
+  }
+}
+      </pre>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="newsletter">
+        <h3>Receber Atualizações</h3>
+        <p>Fique ligado nas novidades e próximos projetos.</p>
+        <form>
+          <label for="email">Email *</label>
+          <input type="email" id="email" placeholder="Digite seu email" required>
+          <div class="subscribe">
+            <input type="checkbox" id="subscribe" required>
+            <label for="subscribe">Sim, me inscreva para atualizações *</label>
+          </div>
+          <button type="submit">Inscrever</button>
+        </form>
+      </div>
+
+      <div class="contact">
+        <h3>Fale Conosco</h3>
+        <p>(81) 3419-6700</p>
+        <p>via.contato@projeto.com</p>
+        <p>Avenida Cais do Apolo, 77<br>Recife - PE, 50030-220</p>
+      </div>
+
+      <div class="socials">
+        <h3>Repositórios</h3>
+        <a href="#">GitHub (VIA)</a>
+        <a href="#">GitHub (Equipe)</a>
+        <a href="#">Documentação</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 VIA - Varal Inteligente Automatizado. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+</body>
+</html>
