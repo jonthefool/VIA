@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato | VIA</title>
+    <link rel="icon" type="image/png" href="./ico/logo.ico">
+    <link rel="stylesheet" href="./css/contato.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJc5f85s5l2oU0X4uK5A4yB44y/3V0/w7r1j6i2K5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI4G5b2U5C24/0I+qI..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script defer src="./script.js"></script>
+</head>
+
+<body>
+   <header id="navbar">
+    <div class="container">
+      <div class="logo">
+        V<span class="highlight">I</span>A
+      </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="./index.html">Home</a></li>
+          <li><a href="./sobre.html">Sobre o Projeto</a></li>
+          <li><a href="#" class="active">Contato</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="contact-section">
+    <div class="contact-grid">
+      <div class="contact-form">
+        <h1>Fale Conosco</h1>
+        <p>Envie dúvidas, sugestões ou propostas de parceria sobre o projeto VIA.</p>
+        <form>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">Primeiro nome *</label>
+              <input type="text" id="firstName" required>
+            </div>
+            <div class="form-group">
+              <label for="lastName">Sobrenome *</label>
+              <input type="text" id="lastName" required>
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <label for="email">Email *</label>
+            <input type="email" id="email" required>
+          </div>
+          <div class="form-group full-width">
+            <label for="message">Mensagem</label>
+            <textarea id="message" rows="5"></textarea>
+          </div>
+          <button type="submit" class="btn send-btn">Enviar</button>
+        </form>
+      </div>
+
+      <div class="contact-info">
+        <div class="info-item">
+          <span class="icon">📍</span>
+          <h3>Localização do Laboratório</h3>
+          <p>Avenida Cais do Apolo, 77<br>Recife - PE, 50030-220</p>
+        </div>
+        <div class="info-item">
+          <span class="icon">✆</span>
+          <h3>Telefone</h3>
+          <p>(81) 3419-6700</p>
+        </div>
+        <div class="info-item">
+          <span class="icon">✉</span>
+          <h3>Email do Projeto</h3>
+          <p>via.contato@projeto.com</p>
+        </div>
+        <div class="info-item">
+          <span class="icon">💻</span>
+          <h3>Repositórios</h3>
+         <div class="social-icons">
+            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-twitter"></i></a> </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="map-section">
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.2078028741045!2d-34.87271458466185!3d-8.064560194165561!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7ab18a1a3845b7f%3A0x6a0c5c4e9e0d1d6a!2sAv.%20Cais%20do%20Apolo%2C%2077%20-%20Recife%2C%20PE%2C%2050030-220!5e0!3m2!1spt-BR!2sbr!4v1678822000000!5m2!1spt-BR!2sbr" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </section>
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="newsletter">
+      <h3>Receber Atualizações</h3>
+      <p>Fique ligado nas novidades e próximos projetos.</p>
+      <form>
+        <label for="email">Email *</label>
+        <input type="email" id="email" placeholder="Digite seu email" required>
+        <div class="subscribe">
+          <input type="checkbox" id="subscribe" required>
+          <label for="subscribe">Sim, me inscreva para atualizações *</label>
+        </div>
+        <button type="submit">Inscrever</button>
+      </form>
+    </div>
+
+    <div class="contact">
+      <h3>Fale Conosco</h3>
+      <p>(81) 3419-6700</p>
+      <p>via.contato@projeto.com</p>
+      <p>Avenida Cais do Apolo, 77<br>Recife - PE, 50030-220</p>
+    </div>
+
+    <div class="socials">
+      <h3>Repositórios</h3>
+      <a href="#">GitHub (VIA)</a>
+      <a href="#">LinkedIn (Equipe)</a>
+      <a href="#">Twitter/X</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 VIA - Varal Inteligente Automatizado. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<script src="./script.js"></script>
+</body>
+</html>
